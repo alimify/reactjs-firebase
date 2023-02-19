@@ -3,12 +3,13 @@
 }
 
 .tracker-container {
-    max-width: 1280px;
-    margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-.swiper-button-prev, .swiper-button-next {
-  color: gray!important;
+.swiper-button-prev,
+.swiper-button-next {
+  color: gray !important;
 }
 
 :root {
@@ -20,38 +21,29 @@ body {
   line-height: inherit;
 }
 
-input, select {
+input {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
+    0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
-
   line-height: 1.25;
-
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-
   padding-left: 0.75rem;
   padding-right: 0.75rem;
-
   --tw-border-opacity: 1;
   border-color: rgb(107 114 128 / var(--tw-border-opacity));
-
   border-width: 1px;
-
   border-radius: 0.25rem;
-
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-
   width: 100%;
-
   margin-bottom: 0.75rem;
-
   text-transform: none;
-
   font-family: inherit;
   font-size: 100%;
   font-weight: inherit;
@@ -73,13 +65,14 @@ input, select {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
   }
 
-  @keyframes rotation {
-  0% {
-      transform: rotate(0deg);
-  }
   100% {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
-  } 
+}
