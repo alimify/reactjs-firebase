@@ -1,6 +1,6 @@
 import { useState, Component } from 'react'
 import LogoIcon from '../../assets/inmogr.svg'
-import tw from "tailwind-styled-components"
+import styled from 'styled-components';
 
 class Header extends Component {
 
@@ -11,24 +11,40 @@ class Header extends Component {
     render()
     {
 
-        const LogoContainer = tw.div `w-full bg-green-100 p-5`
+        const LogoContainer = styled.div `
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px;
+        gap: 10px;
+        height: 105px;
+        left: 0px;
+        top: 0px;
+        background: #C7F0DF`
 
-        const LogoWithText = tw.div `
-        flex
-        items-center
-        justify-center
-        h-8
-        m-2
+        const LogoWithText = styled.div `
+        display: flex;
+        gap: 10px;
         `;
 
-        const LogoImg = tw.span`
+        const LogoImg = styled.span`
+        
         `;
-        const LogoTxt = tw.span`
-        text-4xl
-        text-green-600
-        font-bold
+        const LogoTxt = styled.span`
+        left: 48.73%;
+        right: 39.26%;
+        top: 0%;
+        bottom: 0%;
+        
+        font-family: 'Poppins';
+        font-style: bold;
+        font-weight: 700;
+        font-size: 36px;
+        line-height: 54px;
+        
+        color: #2DA771;
         `;
-
+        
 
         return (
             <LogoContainer>

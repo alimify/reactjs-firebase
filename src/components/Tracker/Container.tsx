@@ -57,6 +57,8 @@ class Header extends Component {
         await this._getFirebaseData()
     }
 
+
+
     _loading(){
 
         return (
@@ -65,6 +67,8 @@ class Header extends Component {
             </LoadingSpinnerContainer>
         )
     }
+
+
 
     _listContainer(){
 
@@ -97,7 +101,7 @@ class Header extends Component {
     _itemDate(item: any) {
 
         return (
-            <ItemDate $eClass={`slider-${item.uniq}`}>
+            <ItemDate>
                 <ItemDateDay>Day</ItemDateDay>
                 <Swiper navigation={true} modules={[Navigation]}
                     loop={true}
@@ -121,7 +125,7 @@ class Header extends Component {
         )
     }
 
-    
+
 
     _itemStart(item: any) {
 
@@ -224,7 +228,7 @@ class Header extends Component {
                                 dateViewVal: null,
                             })
                         }}>
-                            <img src={CrossIcon} className='w-6 h-6' />
+                            <img src={CrossIcon} style={{height:'1.5rem', width: '1.5rem'}} />
                             <CalenderModalCloseBtnTxt>Close modal</CalenderModalCloseBtnTxt>
                         </CalenderModalCloseBtn>
                         <CalenderModalContent>
@@ -239,9 +243,6 @@ class Header extends Component {
 
     }
 
-
-
-
     _addDateModal() {
 
    
@@ -255,7 +256,7 @@ class Header extends Component {
                                     addDateModalShow: null
                                 })
                             }}>
-                                <img src={CrossIcon} className='w-6 h-6' />
+                                <img src={CrossIcon} style={{height:'1.5rem', width: '1.5rem'}} />
                                 <CalenderModalCloseBtnTxt>Close modal</CalenderModalCloseBtnTxt>
                         </CalenderModalCloseBtn>
                         <AddDateModalBody>
