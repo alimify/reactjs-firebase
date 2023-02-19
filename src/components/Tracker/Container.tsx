@@ -9,23 +9,12 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { addDoc, collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
+import { db } from "../../firebase";
 
 class Header extends Component {
     state = {
-        dateSlots: [{
-            uniq: 1,
-            start: 1,
-            end: 3,
-            date: new Date(),
-            updatedAt: new Date()
-        },{
-            uniq: 5,
-            start: 1,
-            end: 3,
-            date: new Date(),
-            updatedAt: new Date()
-        }],
+        dateSlots: [],
         timeSlots: [],
         currentDate: new Date(),
         dateViewUniq: null,
@@ -143,15 +132,18 @@ class Header extends Component {
         return (
             <div>
                     <ItemStartTitle>Start Time</ItemStartTitle>
-                    <ItemStartSelect defaultValue={item.start} onChange={(event) => {
+                    <ItemStartSelect defaultValue={item.start} onChange={async (event) => {
                         this.setState({
-                            dateSlots: this.state.dateSlots.map((itemD) => {
+                            dateSlots: this.state.dateSlots.map((itemD: any) => {
                                 if(itemD.uniq == item.uniq){
                                     itemD.start = parseInt( event.target.value )
                                 }
                                 return itemD;
                             })
                         })
+
+                        await this.updateFirebaseData(item.uniq)
+
                     }}>
                         <option value={0}>Select time</option>
                         {[...Array.from(Array(24).keys())].map((itemOpt, index) => <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option>)}
@@ -171,15 +163,17 @@ class Header extends Component {
                 <div>
 
                     <ItemStartTitle>End Time</ItemStartTitle>
-                    <ItemStartSelect defaultValue={item.end} onChange={(event) => {
+                    <ItemStartSelect defaultValue={item.end} onChange={async (event) => {
                             this.setState({
-                                dateSlots: this.state.dateSlots.map((itemD) => {
+                                dateSlots: this.state.dateSlots.map((itemD: any) => {
                                     if(itemD.uniq == item.uniq){
                                         itemD.end = parseInt( event.target.value )
                                     }
                                     return itemD;
                                 })
                             })
+
+                            await this.updateFirebaseData(item.uniq)
                     }}>
                         <option value={0}>Select time</option>
                         {[...Array.from(Array(24).keys())].map((itemOpt, index) => item.start < itemOpt+1 ? <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option> : '')}
@@ -204,10 +198,10 @@ class Header extends Component {
     _summary()
     {
 
-        const time = this.state.dateSlots.map((item) => {
+        const time = this.state.dateSlots.length > 0 ? this.state.dateSlots.map((item: any) => {
 
             return (item.end - item.start) + 1
-        }).reduce((a,b) => a + b),
+        }).reduce((a,b) => a + b) : 0,
         days = Math.floor(time/24),
         hours = time - (days * 24);
 
@@ -358,9 +352,9 @@ class Header extends Component {
     }
 
 
-    slideChange(uniq: any , type: string){
+    async slideChange(uniq: any , type: string){
 
-        let currentIndex = this.state.dateSlots.filter((item: any) => uniq == item.uniq)
+        let currentIndex: any = this.state.dateSlots.filter((item: any) => uniq == item.uniq)
         
         if(currentIndex.length > 0){
 
@@ -375,7 +369,7 @@ class Header extends Component {
             
 
             self.setState({
-                dateSlots: self.state.dateSlots.map((item) => {
+                dateSlots: self.state.dateSlots.map((item: any) => {
                     if(item.uniq == uniq && new Date() != item.updatedAt){
                         item.date = date
                         item.updatedAt = new Date()
@@ -384,25 +378,29 @@ class Header extends Component {
                 })
             })
 
+            await self.updateFirebaseData(uniq)
+
         }
     }
 
-    onDateChange(date: any)
+    async onDateChange(date: any)
     {
-
+        const uniq: any = this.state.dateViewUniq
         this.setState({
-            dateSlots: this.state.dateSlots.map((item) => {
-                if(item.uniq == this.state.dateViewUniq){
+            dateSlots: this.state.dateSlots.map((item: any) => {
+                if(item.uniq == uniq){
                     item.date = date
                 }
                 return item
             }),
             dateViewUniq: null
         })
+
+        await this.updateFirebaseData(uniq)
     }
 
 
-    submitDateAdd(){
+    async submitDateAdd(){
       
         const date = {
             ...this.state.newDateVal,
@@ -410,19 +408,54 @@ class Header extends Component {
             uniq: new Date().getTime()
         }
 
-        let allDates = this.state.dateSlots
-        allDates.push(date)
-
         this.setState({
-            dateSlots: allDates,
             addDateModalShow: null,
         })
 
+        await this.addFirebaseData()
+
     }
 
-    componentDidMount(){
-       
+
+    async getFirebaseData(){
+        const q = query(collection(db,'inmogr_dates'))
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            let dataRR: any = []
+            querySnapshot.forEach((doc) => {
+                dataRR.push({
+                    ...doc.data(),
+                    uniq: doc.id,
+                    date: doc.data().date.toDate(),
+                    updatedAt: doc.data().updatedAt.toDate(),
+                }) 
+            })
+
+            this.setState({
+                dateSlots: dataRR
+            })
+
+            console.log(dataRR)
+
+            return () => unsubscribe()
+        })
+        
     }
+
+    async addFirebaseData(){
+        await addDoc(collection(db, 'inmogr_dates'), this.state.newDateVal);
+    }
+
+    async updateFirebaseData(uniq: string){
+        const data = this.state.dateSlots.filter((item: any) => item.uniq == uniq)
+        if(data.length > 0){
+            await updateDoc(doc(db, 'inmogr_dates', uniq), data[0])
+        }
+    }
+
+    async componentDidMount(){
+       await this.getFirebaseData()
+    }
+
 
 }
 
