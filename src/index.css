@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.vh-65 {
-    min-height: 65vh;
+.vh-70 {
+    min-height: 70vh;
 }

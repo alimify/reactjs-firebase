@@ -7,29 +7,14 @@ import "swiper/css";
 import "swiper/css/navigation";
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 class Header extends Component {
     state = {
         dateSlots: [{
             uniq: 1,
-            start: 1,
-            end: 3,
-            date: new Date(),
-            updatedAt: new Date()
-        },{
-            uniq: 2,
-            start: 1,
-            end: 3,
-            date: new Date(),
-            updatedAt: new Date()
-        },{
-            uniq: 3,
-            start: 1,
-            end: 3,
-            date: new Date(),
-            updatedAt: new Date()
-        },{
-            uniq: 4,
             start: 1,
             end: 3,
             date: new Date(),
@@ -43,7 +28,16 @@ class Header extends Component {
         }],
         timeSlots: [],
         currentDate: new Date(),
-        dateViewUniq: null
+        dateViewUniq: null,
+        dateViewVal: null,
+        addDateModalShow: null,
+        newDateVal: {
+            uniq: null,
+            start: 1,
+            end: 5,
+            date: new Date(),
+            updatedAt: new Date(),
+        }
     };
     constructor(props: any){
         super(props);
@@ -52,11 +46,11 @@ class Header extends Component {
     render()
     {
 
-        const TrackerContainer = tw.div `w-full mt-5 border-0 border-b border-r border-l rounded-lg`
+        const TrackerContainer = tw.div `w-full mt-5 border-0 border-b border-r border-l rounded-lg tracker-container`
         const TrackerTitle = tw.div `font-bold text-green-600 text-center`
         const TrackerViewContainer = tw.div `p-2`
         const AddBtn = tw.span`bg-green-200 cursor-pointer p-2 rounded mx-10`
-        const TrackerListContainer = tw.div `mx-10 mt-5 vh-65`
+        const TrackerListContainer = tw.div `mx-10 mt-5 vh-70`
         const TrackerSummary = tw.div ``
 
          
@@ -64,7 +58,11 @@ class Header extends Component {
             <TrackerContainer>
                 <TrackerTitle>Time Tracker</TrackerTitle>
                 <TrackerViewContainer>
-                    <AddBtn>
+                    <AddBtn onClick={() => {
+                        this.setState({
+                            addDateModalShow: new Date().getTime()
+                        })
+                    }}>
                         Add New Date
                     </AddBtn>
                     <TrackerListContainer>
@@ -86,7 +84,7 @@ class Header extends Component {
     _listItem(item: any)
     {
 
-        const TrackItem = tw.div`flex justify-between m-2`;
+        const TrackItem = tw.div`flex justify-between m-2 border-b border-green-200 py-5`;
 
         return (
             <TrackItem key={item.uniq.toString()}>
@@ -103,10 +101,12 @@ class Header extends Component {
     {
         const ItemDate = tw.div<DateProps>`
         ${(p) => (p.$eClass ? p.$eClass : "")}
-        w-48 text-center py-6`;
+        w-48 text-center py-1 text-sm`;
 
         return (
            <ItemDate $eClass={`slider-${item.uniq}`}>
+
+               <div className='font-bold text-md text-slate-400'>Day</div>
 
                 <Swiper navigation={true} modules={[Navigation]} 
                         loop={true} 
@@ -115,14 +115,17 @@ class Header extends Component {
 
                     <SwiperSlide key={(1).toString()} onClick={() => {
                         this.setState({
-                            dateViewUniq: item.uniq
+                            dateViewUniq: item.uniq,
+                            dateViewVal: item.date
                         })
                     }}>
-                        <div>{item.date.toDateString()}</div>
+                        <div className='text-green-600 mt-1'>{item.date.toLocaleDateString('en-GB', { month: 'long', year:'numeric', day: 'numeric' })}</div>
+                        <div className='text-green-600 text-xl mt-2'>{item.date.toLocaleDateString('default', { weekday: 'long' })}</div>
                     </SwiperSlide>
 
                     <SwiperSlide  key={(2).toString()}>
-                        <div>{item.date.toDateString()}</div>
+                        <div className='text-green-600 mt-1'>{item.date.toLocaleDateString('en-GB', { month: 'long', year:'numeric', day: 'numeric' })}</div>
+                        <div className='text-green-600 text-xl mt-2'>{item.date.toLocaleDateString('default', { weekday: 'long' })}</div>
                     </SwiperSlide>
 
         
@@ -151,7 +154,7 @@ class Header extends Component {
                         })
                     }}>
                         <option value={0}>Select time</option>
-                        {[...Array.from(Array(24).keys())].map((itemOpt, index) => item.end > itemOpt+1 ? <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option> : '')}
+                        {[...Array.from(Array(24).keys())].map((itemOpt, index) => <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option>)}
                     </ItemStartSelect>
         </div>
         )
@@ -232,6 +235,7 @@ class Header extends Component {
     {
 
 
+
         return (
         <div id="authentication-modal" style={{display: this.state.dateViewUniq== null ? 'none':''}}  aria-hidden="true" className="bg-opacity-80	 bg-zinc-800 fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full justify-center items-center flex">
             <div className="relative w-full h-full max-w-md md:h-auto">
@@ -239,7 +243,8 @@ class Header extends Component {
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <button onClick={() => {
                         this.setState({
-                            dateViewUniq: null
+                            dateViewUniq: null,
+                            dateViewVal: null,
                         })
                     }} type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
                         <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
@@ -248,7 +253,7 @@ class Header extends Component {
                     <div className="px-6 py-6 lg:px-8">
                         <Calendar onChange={(date: any) => {
                             this.onDateChange(date)
-                        }}/>
+                        }} value={this.state.dateViewVal}/>
                     </div>
                 </div>
             </div>
@@ -262,24 +267,88 @@ class Header extends Component {
     _addDateModal()
     {
 
+        const TimeTitle = tw.div`font-bold text-slate-400 mb-1 text-sm`,
+              TimeSelect = tw.select`shadow appearance-none border border-gray-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline`
 
         return (
-        <div id="authentication-modal" style={{display: false ? 'none':''}}  aria-hidden="true" className="bg-opacity-80	 bg-zinc-800 fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full justify-center items-center flex">
+        <div id="authentication-modal" style={{display: this.state.addDateModalShow == null ? 'none':''}}  aria-hidden="true" className="bg-opacity-80	 bg-zinc-800 fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full justify-center items-center flex">
             <div className="relative w-full h-full max-w-md md:h-auto">
                 
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <button onClick={() => {
                         this.setState({
-                            dateViewUniq: null
+                            addDateModalShow: null
                         })
                     }} type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-hide="authentication-modal">
                         <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                         <span className="sr-only">Close modal</span>
                     </button>
                     <div className="px-6 py-6 lg:px-8">
-                       
+                        
 
-                       
+
+                        <div className="mb-2">
+                            <TimeTitle>
+                                Date
+                            </TimeTitle>
+                            <DatePicker dateFormat="dd/MM/yyyy" className='shadow appearance-none border border-gray-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline' selected={this.state.newDateVal.date} onChange={(date: any) => this.setState({
+                                newDateVal: {
+                                    ...this.state.newDateVal,
+                                    date: date
+                                }
+                            })} />
+
+                        </div>
+
+
+                        <div className="mb-2">
+                                <TimeTitle>Start Time</TimeTitle>
+                                <TimeSelect onChange={(event) => {
+                                            const timeData = {
+                                                ...this.state.newDateVal,
+                                                start: parseInt(event.target.value)
+                                            };
+
+                                            this.setState({
+                                                newDateVal: timeData
+                                            });
+                                }} defaultValue={this.state.newDateVal.start}>
+                                    <option value={0}>Select time</option>
+                                    {[...Array.from(Array(24).keys())].map((itemOpt, index) => <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option> )}
+                                </TimeSelect>
+                        </div>
+
+
+                        <div className="mb-2">
+                                    <TimeTitle>End Time</TimeTitle>
+                                    <TimeSelect onChange={(event) => {
+
+                                        const timeData = {
+                                            ...this.state.newDateVal,
+                                            end: parseInt(event.target.value)
+                                        };
+
+                                        this.setState({
+                                            newDateVal: timeData
+                                        });
+
+                                    }}  defaultValue={this.state.newDateVal.end}>
+                                        <option value={0}>Select time</option>
+                                        {[...Array.from(Array(24).keys())].map((itemOpt, index) => this.state.newDateVal.start < itemOpt+1 ? <option value={itemOpt+1} key={index}>{ (itemOpt + 1) > 12 ? ((itemOpt-12) + 1) + ' PM' : (itemOpt+1) + ' AM' }</option> : '' )}
+                                    </TimeSelect>
+                        </div>
+
+
+                        <div className="flex items-center justify-between">
+                                <button onClick={() => {
+                                    this.submitDateAdd()
+                                }} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                                    ADD
+                                </button>
+                        </div>
+
+
+
                     </div>
                 </div>
             </div>
@@ -330,6 +399,25 @@ class Header extends Component {
             }),
             dateViewUniq: null
         })
+    }
+
+
+    submitDateAdd(){
+      
+        const date = {
+            ...this.state.newDateVal,
+            updatedAt: new Date(),
+            uniq: new Date().getTime()
+        }
+
+        let allDates = this.state.dateSlots
+        allDates.push(date)
+
+        this.setState({
+            dateSlots: allDates,
+            addDateModalShow: null,
+        })
+
     }
 
     componentDidMount(){
